@@ -1,0 +1,89 @@
+% Program for Circular Convolution
+clc;
+close all;
+clear all;
+
+% Input sequences
+x1 = input('Enter the first sequence: ');
+x2 = input('Enter the second sequence: ');
+
+% Find the lengths of the sequences
+N1 = length(x1);
+N2 = length(x2);
+N = max(N1, N2);
+
+% Zero-padding the sequences to the same length
+if N2 > N1
+    x4 = [x1, zeros(1, N - N1)];
+    x5 = x2;
+elseif N1 > N2
+    x4 = x1;
+    x5 = [x2, zeros(1, N - N2)];
+else
+    x4 = x1;
+    x5 = x2;
+end
+
+% Initialize the output sequence
+x3 = zeros(1, N);
+
+% Perform circular convolution using the modulo operator
+for m = 0:N-1
+    for n = 0:N-1
+        j = mod(m - n, N);
+        if j < 0
+            j = j + N; % Handle negative indices
+        end
+        x3(m+1) = x3(m+1) + x4(n+1) * x5(j+1);
+    end
+end
+
+% Plot the first input sequence
+subplot(4, 1, 1);
+stem(0:N1-1, x1, 'filled');
+title('First Input Sequence');
+xlabel('Samples');
+ylabel('Amplitude');
+
+% Plot the second input sequence
+subplot(4, 1, 2);
+stem(0:N2-1, x2, 'filled');
+title('Second Input Sequence');
+xlabel('Samples');
+ylabel('Amplitude');
+
+% Plot the result of circular convolution
+subplot(4, 1, 3);
+stem(0:N-1, x3, 'filled');
+title('Circular Convolution Using Modulo Operator');
+xlabel('Samples');
+ylabel('Amplitude');
+
+% Perform circular convolution using the inbuilt function
+y = cconv(x1, x2, N);
+
+% Display the result
+disp('Circular Convolution using Inbuilt Function:');
+disp(y);
+
+% Plot the inbuilt function result
+subplot(4, 1, 4);
+stem(0:N-1, y, 'filled');
+title('Circular Convolution Using Inbuilt Function');
+xlabel('Samples');
+ylabel('Amplitude');
+
+______________________________________________________________________________________________________________________________________________________
+
+Q) importance of circular convolution in digital system? 
+
+Definition: Circular convolution is a method of combining two periodic signals. It is often used in the context of the Discrete Fourier Transform (DFT).
+
+Importance in Digital Systems
+Efficient Computation: Circular convolution can be efficiently computed using the Fast Fourier Transform (FFT), making it suitable for real-time processing.
+
+DFT Applications: It is essential in the implementation of the DFT, which is widely used in signal processing for analyzing frequency components.
+
+Periodic Signals: Ideal for processing periodic signals, as it naturally handles the periodicity.
+
+Overlap-Save and Overlap-Add Methods: Used in these methods for efficient convolution of long signals with filters.

@@ -1,0 +1,87 @@
+% Program for Linear Convolution
+clc;
+clear all;
+close all;
+
+% Input sequences and origin locations
+x1 = input('Enter the first sequence x1(n): ');
+t1 = input('Enter the origin location of sequence x1(n): ');
+x2 = input('Enter the second sequence x2(n): ');
+t2 = input('Enter the origin location of sequence x2(n): ');
+
+% Length of sequences
+l1 = length(x1);
+l2 = length(x2);
+
+% Length of the convolved sequence
+ln = l1 + l2 - 1;
+
+% Zero-padding the sequences
+X1 = [x1, zeros(1, l2)];
+X2 = [x2, zeros(1, l1)];
+
+% Linear convolution (manual computation)
+y = zeros(1, ln); % Initialize output sequence
+for i = 1:ln
+    for j = 1:l1
+        if (i - j + 1 > 0)
+            y(i) = y(i) + X1(j) * X2(i - j + 1);
+        end
+    end
+end
+
+% Define the time indices for each sequence
+t_x1 = (t1 - 1):(t1 + l1 - 2);
+t_x2 = (t2 - 1):(t2 + l2 - 2);
+t_y = (t1 + t2 - 2):(t1 + t2 + ln - 3);
+
+% Plot the first sequence
+subplot(4, 1, 1);
+stem(t_x1, x1, 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('First Sequence x1(n)');
+
+% Plot the second sequence
+subplot(4, 1, 2);
+stem(t_x2, x2, 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Second Sequence x2(n)');
+
+% Plot the manually computed convolution result
+subplot(4, 1, 3);
+disp('Convolved Sequence (Manual Computation):');
+disp(y);
+stem(t_y, y, 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Convolved Output (Manual)');
+
+% Using the inbuilt function `conv`
+y1 = conv(x1, x2);
+
+% Define time indices for the inbuilt convolution result
+t_y1 = (t1 + t2 - 2):(t1 + t2 + length(y1) - 3);
+
+% Plot the inbuilt convolution result
+subplot(4, 1, 4);
+disp('Convolved Sequence (Using Inbuilt Function):');
+disp(y1);
+stem(t_y1, y1, 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Convolved Output (Using Inbuilt Function)');
+
+___________________________________________________________________________________________________________________________
+Q) Difference between Linear & Circular Convolution
+Linear Convolution:
+Combines two signals to form a third signal.
+Used in signal processing to find the output of an LTI system.
+Result length: 
+𝑁+𝑀−1.
+
+Circular Convolution:
+Combines two periodic signals.
+Used in the context of DFT and for periodic signals.
+Result length: Same as the input signals, 𝑁

@@ -1,0 +1,60 @@
+clc;
+close all;
+clear all;
+
+% Define specifications of Butterworth Analog filter
+alphap = input('Maximum passband attenuation (in dB) = ');
+alphas = input('Minimum stopband attenuation (in dB) = ');
+wpn = input('Passband edge frequency (rad/s) = ');
+wsn = input('Stopband edge frequency (rad/s) = ');
+
+% Validate input frequencies
+if wpn >= wsn
+    error('Passband edge frequency must be less than stopband edge frequency.');
+end
+
+% Find order of filter (N) and cutoff frequency (wc)
+[N, wc] = buttord(wpn, wsn, alphap, alphas, 's');
+
+% Find Transfer Function of Butterworth filter
+[b, a] = butter(N, wc, 's');
+
+% Convert analog filter to digital filter using impulse invariant method
+[bz, az] = impinvar(b, a, 50); % Sampling frequency is assumed to be 1 Hz for normalized design
+
+% Plot Frequency Response of the Digital Filter
+figure;
+subplot(2, 1, 1);
+[H, w] = freqz(bz, az, 1024); % Compute frequency response
+plot(w / pi, abs(H)); % Normalized frequency (0 to 1, corresponds to 0 to pi rad)
+xlabel('Normalized Frequency (\omega / \pi)');
+ylabel('Magnitude');
+title('Magnitude Response of Digital Filter');
+grid on;
+
+% Plot Frequency Response in dB
+subplot(2, 1, 2);
+plot(w / pi, 20*log10(abs(H))); % Convert magnitude to dB scale
+xlabel('Normalized Frequency (\omega / \pi)');
+ylabel('Magnitude (dB)');
+title('Magnitude Response (in dB)');
+grid on;
+
+% Display Filter Information
+fprintf('Butterworth Filter Design Results:\n');
+fprintf('----------------------------------\n');
+fprintf('Filter Order (N): %d\n', N);
+fprintf('Cutoff Frequency (rad/s): %.2f\n', wc);
+fprintf('----------------------------------\n');
+
+_____________________________________________________________________________________________________________ _____________________________
+
+Q) Difference between IIR and FIR 
+
+                     IIR                                                                                                            FIR
+
+1) Infinite Impulse Response                                                                     1) finite Impulse Response
+ 2) Can be unstable                                                                                   2) always stable
+3) More complex design                                                                          3) easy complex design
+4) Requires less memory                                                                         4) Requires more memory
+ 

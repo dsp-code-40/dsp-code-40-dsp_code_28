@@ -1,0 +1,80 @@
+% High Pass FIR Filter using Hamming Window
+clc;
+clear all;
+close all;
+
+% User Inputs
+wc = input('Enter the normalized cutoff frequency (0 < wc < 1): '); % Normalized cutoff frequency
+N = input('Enter the filter length (must be odd): '); % Filter length
+
+% Ensure filter length (N) is valid
+if mod(N, 2) == 0
+    error('Filter length must be an odd number.');
+end
+
+% Compute impulse response of the ideal high-pass filter
+alpha = (N-1) / 2; % Center point
+hd = zeros(1, N); % Initialize impulse response
+for n = 1:N
+    if (n-1) == alpha
+        hd(n) = 1 - wc; % Center coefficient for high-pass filter
+    else
+        hd(n) = (sin(pi*(n-1-alpha)) - sin(wc*pi*(n-1-alpha))) / (pi * (n-1-alpha));
+    end
+end
+
+% Compute the Hamming window
+wn = hamming(N)';
+
+% Apply the window to the ideal filter
+hn = hd .* wn;
+
+% Frequency response of the filter
+w = 0:0.01:pi; % Frequency range
+h = freqz(hn, 1, w); % Compute frequency response
+
+% Plot the frequency response of the filter
+figure;
+subplot(3, 1, 1);
+plot(w/pi, abs(h), 'LineWidth', 1.5);
+xlabel('Normalized Frequency (\omega / \pi)');
+ylabel('Magnitude');
+title('Frequency Response of FIR High-Pass Filter');
+grid on;
+
+% Generate and plot the input sinusoidal signal
+fs = 570; % Sampling frequency (Hz)
+t = 0:1/fs:1; % Time vector
+x = 2*sin(2*pi*50*t) + 4*sin(2*pi*120*t) + 8*sin(2*pi*240*t); % Composite signal
+
+% Frequency domain information of input signal
+y = fft(x); % Compute FFT of input signal
+f = (0:length(x)-1) * fs / length(x); % Frequency vector
+
+subplot(3, 1, 2);
+stem(f, abs(y), 'Marker', 'none', 'LineWidth', 1.5);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Input Signal');
+grid on;
+
+% Filter the input signal in the frequency domain
+H = freqz(hn, 1, 2*pi*f/fs); % Evaluate filter frequency response at FFT frequencies
+yout = y .* H'; % Apply filter in frequency domain
+
+subplot(3, 1, 3);
+stem(f, abs(yout), 'Marker', 'none', 'LineWidth', 1.5);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Output Signal');
+grid on;
+
+__________________________________________________________________________________________________________________________________________
+
+Q) explain Gibbs phenomena?
+ans -: 
+Definition: Gibbs Phenomenon refers to the oscillations that occur near the discontinuities in the Fourier series approximation of a signal.
+
+Cause: It happens because the Fourier series tries to approximate a discontinuous function with a finite number of sine and cosine terms, leading to overshoots and undershoots near the discontinuities.
+
+Effect: The oscillations do not disappear even if the number of terms in the Fourier series increases; they only get narrower.

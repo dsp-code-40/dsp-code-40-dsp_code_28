@@ -1,0 +1,57 @@
+clc;
+close all;
+clear all;
+
+% Inputs
+x = input('Enter the input sequence: '); % Input sequence
+h = input('Enter the filter response sequence: '); % Filter sequence
+L = input('Enter the number of data points per block (L): '); % Block size
+
+M = length(h); % Length of the filter
+lx = length(x); % Length of the input sequence
+
+% Padding the input sequence to make it divisible by L
+r = rem(lx, L); % Remainder when lx is divided by L
+if r ~= 0
+    x = [x zeros(1, (L-r))]; % Zero padding
+end
+
+nr = length(x) / L; % Number of blocks
+h1 = [h zeros(1, L-1)]; % Zero-pad the filter to length L+M-1
+
+% Initialize intermediate and final results
+m1 = zeros(nr, L); % Blocks of the input sequence
+m2 = zeros(nr, L + M - 1); % Zero-padded input blocks
+m3 = zeros(nr, L + M - 1); % Convolved intermediate blocks
+m4 = zeros(nr, length(x) + M - 1); % Shifted convolved blocks
+
+for k = 1:nr
+    % Divide the input sequence into blocks
+    m1(k, :) = x(((k-1)*L+1) : k*L);
+    
+    % Zero-pad each block to length L+M-1
+    m2(k, :) = [m1(k, :) zeros(1, M-1)];
+    
+    % Compute circular convolution using FFT and IFFT
+    m3(k, :) = ifft(fft(m2(k, :)) .* fft(h1));
+    
+    % Shift the convolved blocks for overlap-addition
+    m4(k, :) = [zeros(1, (k-1)*L) m3(k, :) zeros(1, (nr-k)*L)];
+end
+
+% Display intermediate results
+disp('Blocks of input sequence:');
+disp(m1);
+disp('Blocks of input sequence for overlap-add method:');
+disp(m2);
+disp('Convolved intermediate blocks:');
+disp(m3);
+disp('Shifted convolved blocks for overlap-addition:');
+disp(m4);
+
+% Perform the overlap-addition to get the final linear convolution
+y = sum(m4);
+
+% Display the result
+disp('Linear Convolution of the input sequence:');
+disp(y);

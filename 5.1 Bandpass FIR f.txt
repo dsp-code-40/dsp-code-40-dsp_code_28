@@ -1,0 +1,79 @@
+clc;
+clear all;
+close all;
+
+% Parameters
+N = 7; % Order/length of FIR filter
+k = 0:N-1; % Sample indices
+wk = 2*pi*k/N; % Sampling frequency in normalized radians
+
+% Magnitude of H(k) for Bandpass Filter
+Hk = [0, 1, 1, 0, 0, 1, 1]; % Specified as per the problem
+
+% Calculate angle of H(k) (theta(k))
+n1 = 0:(N-1)/2;
+n2 = (N+1)/2:N-1;
+ang = [-((N-1)/N)*pi*n1, ((N-1)*pi)-((N-1)/N)*pi*n2];
+
+% Calculate H(k) (complex frequency response)
+H = Hk .* exp(1i * ang);
+
+% Desired impulse response h(n) / FIR filter IR
+hn = real(ifft(H, N));
+
+% Frequency response of FIR filter
+[h1, w] = freqz(hn, 1, 512); % Calculate frequency response
+
+% Subplot 1: Magnitude of H(k)
+subplot(3, 2, 1);
+stem(k, Hk, 'filled');
+xlabel('k');
+ylabel('Magnitude of H(k)');
+title('Magnitude of H(k)');
+
+% Subplot 2: Angle of H(k)
+subplot(3, 2, 2);
+stem(k, ang, 'filled');
+xlabel('k');
+ylabel('Angle of H(k)');
+title('Angle of H(k)');
+
+% Subplot 3: Desired finite impulse response h(n)
+subplot(3, 2, 3);
+stem(0:N-1, hn, 'filled');
+xlabel('n');
+ylabel('h(n)');
+title('Impulse Response of FIR Filter');
+
+% Subplot 4: Frequency response of FIR filter
+subplot(3, 2, 4);
+plot(w/pi, abs(h1), 'LineWidth', 1.5);
+xlabel('Normalized Frequency (\times\pi rad/sample)');
+ylabel('Magnitude');
+title('Frequency Response of FIR Filter');
+
+% Applying sinusoidal signal as input
+t = 0:1/511:1; % Time vector
+fs = 511; % Sampling frequency
+x = 2*sin(2*pi*50*t) + 4*sin(2*pi*120*t) + 8*sin(2*pi*240*t); % Input signal
+
+% Frequency domain information of input signal
+y = fft(x);
+f = (0:length(x)-1) * fs / length(x); % Frequency axis
+
+% Subplot 5: Frequency response of input signal
+subplot(3, 2, 5);
+stem(f, abs(y), 'filled');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Input Signal');
+
+% Apply the FIR filter to the input signal
+yout = y .* interp1(w/pi, abs(h1), f/fs, 'linear', 0); % Apply frequency response
+
+% Subplot 6: Frequency response of output signal
+subplot(3, 2, 6);
+stem(f, abs(yout), 'filled');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Output Signal');

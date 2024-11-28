@@ -1,0 +1,57 @@
+10 upsampling
+
+clc;
+clear all; 
+close all;
+
+% Input Parameters
+N = input('Length of sinusoidal signal = '); % Length of the signal
+L = input('Upsampling factor = ');          % Upsampling factor
+
+% Input Signal Generation
+n = 0:N-1;                                 % Time indices
+x = 0.25 * sinc(0.25 * (n - (N/2)));       % Sinc input signal
+subplot(2,2,1);
+stem(n, x, 'filled');
+xlabel('n');
+ylabel('x[n]');
+title('Input Signal');
+
+% Upsampling
+y = zeros(1, L * N);                       % Initialize upsampled signal
+y(1:L:end) = x;                            % Insert input samples at every Lth position
+n1 = 0:L*N-1;                              % New time indices
+subplot(2,2,2);
+stem(n1, y, 'filled');
+xlabel('n');
+ylabel('y[n]');
+title('Upsampled Signal');
+
+% Frequency Response of Input Signal
+f = -1:1/(N/2):1;                          % Frequency axis in normalized range (-1 to 1)
+h = freqz(x, 1, pi * f);                   % Frequency response of input
+subplot(2,2,3);
+plot(f, abs(h));
+xlabel('Normalized Frequency');
+ylabel('Magnitude');
+title('Frequency Response of Input Signal');
+
+% Frequency Response of Upsampled Signal
+h1 = freqz(y, 1, pi * f);                  % Frequency response of upsampled signal
+subplot(2,2,4);
+plot(f, abs(h1));
+xlabel('Normalized Frequency');
+ylabel('Magnitude');
+title('Frequency Response of Upsampled Signal');
+
+_______________________________________________________________________________________________________________________________________________
+
+What is Interpolation and Decimation and where we need It?
+Interpolation
+Definition: A method used in upsampling to estimate and insert new sample values between existing ones.
+Purpose: To smooth the signal and avoid artifacts.
+
+Decimation
+Definition: Reducing the sampling rate of a signal by removing some samples.
+
+Purpose: To decrease data rate and reduce computational load.

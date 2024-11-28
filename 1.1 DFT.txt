@@ -1,0 +1,86 @@
+% WAP for DFT
+clc;
+close all;
+clear all;
+
+% Input sequence
+xn = input('Enter the input sequence: ');
+N1 = length(xn);
+
+% Number of points in DFT
+N = input('Enter the number of points in DFT: ');
+
+% Zero-padding if necessary
+xn = [xn zeros(1, (N - N1))];
+
+% Time domain
+n1 = 0:N-1;
+
+% Plot the input sequence
+subplot(3,2,1);
+stem(n1, xn, 'filled');
+disp('Input Sequence = ');
+disp(xn);
+xlabel('Time (n) ---->');
+ylabel('Amplitude');
+title('Input Sequence');
+
+% Generate DFT matrix
+n = 0:N-1;
+k = 0:N-1;
+nk = n' * k; % Creates an N by N matrix of nk values
+wn = exp((-1i * 2 * pi) / N); % Twiddle factor (Wn)
+wnnk = wn .^ nk; % DFT matrix
+
+% Compute DFT coefficients
+xk = xn * wnnk;
+
+% Plot the real part of the DFT
+subplot(3,2,2);
+stem(n1, real(xk), 'filled');
+disp('DFT Sequence (Real Part) = ');
+disp(real(xk));
+xlabel('Frequency Resolution (k) ---->');
+ylabel('Amplitude');
+title('Real Part of DFT');
+
+% Plot the imaginary part of the DFT
+subplot(3,2,3);
+stem(n1, imag(xk), 'filled');
+disp('DFT Sequence (Imaginary Part) = ');
+disp(imag(xk));
+xlabel('Frequency Resolution (k) ---->');
+ylabel('Amplitude');
+title('Imaginary Part of DFT');
+
+% Plot the magnitude spectrum
+subplot(3,2,4);
+stem(n1, abs(xk), 'filled');
+xlabel('Frequency Resolution (k) ---->');
+ylabel('Magnitude');
+title('Magnitude Spectrum');
+
+% Plot the phase spectrum
+subplot(3,2,5);
+theta = angle(xk); % Correct method to calculate the phase
+stem(n1, theta, 'filled');
+xlabel('Frequency Resolution (k) ---->');
+ylabel('Phase (radians)');
+title('Phase Spectrum');
+
+_________________________________________________________________________________________________________________________________________________________________
+
+
+Q) DFT and IDFT - Difference between DFT and DTFT?
+
+
+DFT                                                                                                      DTFT
+1) Transforms a finite sequence of discrete samples            1) Transforms an infinite sequence of discrete samples into a continuous frequency spectrum.                 
+into a finite sequence of frequency components.
+
+2) Finite number of frequency components.                        2) Continuous frequency spectrum.
+
+3) Used in digital signal processing for spectral                  3) Used for theoretical analysis of signals and systems.
+    analysis, filtering, etc.
+
+4) DFT is also known as discrete fourior transform           4)  known as discrete time fourior transform

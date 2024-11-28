@@ -1,0 +1,53 @@
+clc;
+clear all; 
+close all;
+
+% Input Parameters
+N = input('Length of sinusoidal signal = '); % Length of the signal
+M = input('Downsampling factor = ');        % Downsampling factor
+
+% Input Signal Generation
+n = 0:N-1;                                 % Original time indices
+x = 0.25 * sinc(0.25 * (n - (N/2)));       % Sinc input signal
+subplot(2,2,1);
+stem(n, x, 'filled');
+xlabel('n');
+ylabel('x[n]');
+title('Input Signal');
+
+% Downsampling
+y = x(1:M:end);                           % Retain every M-th sample
+n1 = 0:length(y)-1;                       % New time indices for downsampled signal
+subplot(2,2,2);
+stem(n1, y, 'filled');
+xlabel('n');
+ylabel('y[n]');
+title('Downsampled Signal');
+
+% Frequency Response of Input Signal
+f = -1:1/(N/2):1;                         % Normalized frequency axis
+h = freqz(x, 1, pi * f);                  % Frequency response of input
+subplot(2,2,3);
+plot(f, abs(h));
+xlabel('Normalized Frequency');
+ylabel('Magnitude');
+title('Frequency Response of Input Signal');
+
+% Frequency Response of Downsampled Signal
+h1 = freqz(y, 1, pi * f);                 % Frequency response of downsampled signal
+subplot(2,2,4);
+plot(f, abs(h1));
+xlabel('Normalized Frequency');
+ylabel('Magnitude');
+title('Frequency Response of Downsampled Signal');
+
+_____________________________________________________________________________________________________________________
+
+explain the multirate signal processing Downsampling?
+
+Definition: Downsampling reduces the sampling rate of a signal by keeping every 𝑀-th sample and discarding the rest.
+Purpose: It helps in reducing data rate, matching sampling rates, and improving efficiency.
+
+Process: Low-Pass Filtering: Apply a low-pass filter to prevent aliasing.
+
+Formula:  𝑦[𝑛]=𝑥[𝑛𝑀].

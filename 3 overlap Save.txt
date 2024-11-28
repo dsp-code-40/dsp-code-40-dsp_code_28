@@ -1,0 +1,80 @@
+clc;
+clear all;
+close all;
+
+% Input sequences
+X = input('Enter the first input sequence (signal): '); % Input sequence
+Lx = length(X);
+h = input('Enter the second input sequence (filter): '); % Filter sequence
+M = length(h); % Length of the filter
+L = input('Enter the number of data inputs per block (L): '); % Block size
+
+% Total FFT length
+N = L + M - 1;
+
+% Pad the input sequence to make its length divisible by L
+r = rem(Lx, L);
+if r ~= 0
+    X = [X zeros(1, (L-r))]; % Zero padding
+end
+
+% Pad the filter to length N
+h = [h zeros(1, N-M)];
+
+% Updated length of the input sequence
+Lnew = length(X);
+nr = Lnew / L; % Number of blocks
+
+% Initialize matrices for intermediate results
+ma = zeros(nr, L); % Input sequence blocks
+ma1 = zeros(nr, N); % Extended blocks for overlap-save
+ma2 = zeros(nr, N); % Convolved blocks
+ma3 = zeros(nr, L); % Final valid blocks after discarding overlap
+
+for k = 1:nr
+    % Divide the input sequence into blocks
+    ma(k, :) = X(((k-1)*L) + 1 : k*L);
+    
+    % Extend the blocks for overlap-save
+    if k == 1
+        % First block: prepend zeros
+        ma1(k, :) = [zeros(1, M-1) ma(k, :)];
+    else
+        % Subsequent blocks: prepend overlapping values from the previous block
+        ma1(k, :) = [ma((k-1), L-M+2:L) ma(k, :)];
+    end
+    
+    % Convolution using FFT
+    ma2(k, :) = ifft(fft(ma1(k, :)) .* fft(h));
+    
+    % Extract the valid part of the result
+    ma3(k, :) = ma2(k, M:L+M-1);
+end
+
+% Display intermediate results
+disp('Blocks of input sequence:');
+disp(ma);
+disp('Extended blocks for overlap-save:');
+disp(ma1);
+disp('Convolved blocks:');
+disp(ma2);
+disp('Valid blocks after discarding overlap:');
+disp(ma3);
+
+% Combine the valid parts to get the final result
+y1 = ma3'; % Transpose for column-wise concatenation
+Y = y1(:)'; % Convert to a single row vector
+
+% Display the final result
+disp('Linear Convolution of the input sequence (Overlap-Save Method):');
+disp(Y);
+
+_____________________________________________________________________________________________________________________________________________________
+Q) list of steps for computing overlap save method
+Segment the Input Signal: Divide the input signal into overlapping segments. Each segment should be of length 𝐿+𝑁−1, where 𝐿 is the length of the desired output segment, and 𝑁 is the length of the filter.
+FFT of Segments: Compute the Fast Fourier Transform (FFT) of each segment.
+FFT of Filter: Compute the FFT of the filter, zero-padded to the same length as the segments.
+Multiply in Frequency Domain: Multiply the FFT of each segment with the FFT of the filter.
+Inverse FFT: Compute the inverse FFT of the product to get the filtered segment.
+Discard Overlap: Discard the first 𝑁−1 samples of each filtered segment to remove the overlap.
+Concatenate Segments: Concatenate the remaining samples of each segment to form the final output signal.

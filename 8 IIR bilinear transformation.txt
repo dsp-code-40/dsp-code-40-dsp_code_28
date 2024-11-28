@@ -1,0 +1,59 @@
+clc;
+clear all;
+close all;
+
+% Input Specifications for Butterworth Filter
+alphap = input('Maximum passband attenuation (in dB) = ');
+alphas = input('Minimum stopband attenuation (in dB) = ');
+wpn = input('Passband edge frequency (rad/s) = ');
+wsn = input('Stopband edge frequency (rad/s) = ');
+
+% Input Sampling Frequency
+fs = input('Sampling Frequency (Hz) = ');
+
+% Validate Input
+if wpn >= wsn
+    error('Passband edge frequency must be less than stopband edge frequency.');
+end
+
+% Find Filter Order and Cutoff Frequency
+[N, wc] = buttord(wpn, wsn, alphap, alphas, 's');
+
+% Design Analog Butterworth Filter
+[b, a] = butter(N, wc, 's');
+
+% Convert Analog to Digital Filter Using Bilinear Transformation
+[bz, az] = bilinear(b, a, fs);
+
+% Frequency Response of Digital Filter
+[y, w] = freqz(bz, az, 1024, fs); % Frequency response with finer resolution
+
+% Plot Frequency Response
+figure;
+subplot(2, 1, 1);
+plot(w, abs(y)); % Magnitude Response
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response (Magnitude)');
+
+subplot(2, 1, 2);
+plot(w, 20*log10(abs(y))); % Magnitude in dB
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('Frequency Response (Magnitude in dB)');
+grid on;
+
+% Display Results
+fprintf('Filter Design Results:\n');
+fprintf('----------------------------------\n');
+fprintf('Filter Order (N): %d\n', N);
+fprintf('Cutoff Frequency (rad/s): %.2f\n', wc);
+fprintf('Sampling Frequency (Hz): %.2f\n', fs);
+fprintf('----------------------------------\n');
+
+_____________________________________________________________________________________________________________________
+Q) What are the different methods to design  IIR Filter.
+
+1) Bilinear Transform: Converts an analog filter to a digital filter
+2) Impulse Invariant Method
+3) Z-Transform

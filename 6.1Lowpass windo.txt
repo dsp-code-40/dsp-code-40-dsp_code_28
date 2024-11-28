@@ -1,0 +1,88 @@
+% Low Pass FIR Filter using Hamming Window.
+clc;
+clear all;
+close all;
+
+% User Inputs
+wc = input('Enter the normalized cutoff frequency (0 < wc < 1): '); % wc should be normalized (in [0, 1])
+N = input('Enter the filter length (must be odd): '); % Length of filter
+
+% Ensure filter length (N) is valid
+if mod(N, 2) == 0
+    error('Filter length must be an odd number.');
+end
+
+% Compute impulse response of the ideal low-pass filter
+alpha = (N-1) / 2; % Center point
+hd = zeros(1, N); % Initialize impulse response
+for n = 1:N
+    if (n-1) == alpha
+        hd(n) = wc; % Normalized wc directly for ideal sinc filter
+    else
+        hd(n) = sin(wc * (n-1-alpha)) / (pi * (n-1-alpha)); % Sinc function
+    end
+end
+
+% Compute the Hamming window
+wn = hamming(N)';
+
+% Apply the window to the ideal filter
+hn = hd .* wn;
+
+% Frequency response of the filter
+w = 0:0.01:pi; % Frequency range
+h = freqz(hn, 1, w); % Compute frequency response
+
+% Plot the frequency response of the filter
+figure;
+subplot(3, 1, 1);
+plot(w/pi, abs(h), 'LineWidth', 1.5);
+xlabel('Normalized Frequency (\omega / \pi)');
+ylabel('Magnitude');
+title('Frequency Response of FIR Filter');
+grid on;
+
+% Generate and plot the input sinusoidal signal
+fs = 570; % Sampling frequency (Hz)
+t = 0:1/fs:1; % Time vector
+x = 2*sin(2*pi*50*t) + 4*sin(2*pi*120*t) + 8*sin(2*pi*240*t); % Composite signal
+
+% Frequency domain information of input signal
+y = fft(x); % Compute FFT of input signal
+f = (0:length(x)-1) * fs / length(x); % Frequency vector
+
+subplot(3, 1, 2);
+stem(f, abs(y), 'Marker', 'none', 'LineWidth', 1.5);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Input Signal');
+grid on;
+
+% Filter the input signal in the frequency domain
+H = freqz(hn, 1, 2*pi*f/fs); % Evaluate filter frequency response at FFT frequencies
+yout = y .* H'; % Apply filter in frequency domain
+
+subplot(3, 1, 3);
+stem(f, abs(yout), 'Marker', 'none', 'LineWidth', 1.5);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of Output Signal');
+grid on;
+
+
+_______________________________________________________________________________________________________________________________________
+
+Q) Difference Between Recursive and Non Recursive System?
+
+                            Recursive                                                                                Non Recursive
+
+1) Systems with feedback loops                                                       1) Systems without feedback loops
+
+2) Can be unstable                                                                           2) 	Always stable
+
+3) Requires less memory                                                                  3) Requires more memory
+
+4) More complex                                                                               4) less complex
+
+
+

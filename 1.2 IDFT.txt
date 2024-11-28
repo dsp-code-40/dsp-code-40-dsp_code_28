@@ -1,0 +1,65 @@
+% WAP for IDFT
+clc;
+clear all;
+close all;
+
+% Input the IDFT sequence
+xk = input('Enter the IDFT sequence: ');
+N = input('Enter number of points in IDFT: ');
+
+% Frequency domain
+k = 0:N-1;
+
+% Plot the IDFT sequence
+subplot(3,2,1);
+stem(k, xk, 'filled');
+xlabel('Frequency Resolution (k)');
+ylabel('Amplitude');
+title('IDFT Sequence');
+
+% Zero-padding if necessary
+N1 = length(xk);
+xk = [xk zeros(1, (N - N1))];
+
+% Generate IDFT matrix
+n = 0:N-1;
+k = 0:N-1;
+nk = n' * k; % Creates an N by N matrix of nk values
+wn = exp((1i * 2 * pi) / N); % Twiddle factor for IDFT
+wnnk = wn .^ nk; % IDFT matrix
+
+% Compute the IDFT
+xn = (xk * wnnk) / N;
+
+% Display IDFT result
+disp('IDFT = ');
+disp(xn);
+
+% Plot the real part of the IDFT
+subplot(3,2,2);
+stem(n, real(xn), 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Signal Real Part');
+
+% Plot the imaginary part of the IDFT
+subplot(3,2,3);
+stem(n, imag(xn), 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Signal Imaginary Part');
+
+% Plot the amplitude spectrum
+subplot(3,2,4);
+stem(n, abs(xn), 'filled');
+xlabel('Time (n)');
+ylabel('Amplitude');
+title('Signal Amplitude Spectrum');
+
+% Plot the phase spectrum
+theta = angle(xn); % Correct method to calculate the phase
+subplot(3,2,5);
+stem(n, theta, 'filled');
+xlabel('Time (n)');
+ylabel('Phase (radians)');
+title('Signal Phase Spectrum');
